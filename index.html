@@ -3,8 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PikaWalls | ฟรีวอลเปเปอร์พิคาชูสุดคูล</title>
-    <meta name="description" content="ดาวน์โหลดวอลเปเปอร์พิคาชูและโปเกมอนความละเอียดสูงฟรี ดีไซน์สวย ทันสมัย สำหรับมือถือและคอมพิวเตอร์">
+    <title>PikaSearch | ค้นหารูปภาพและไอเดียฟรี</title>
+    <meta name="description" content="ค้นหารูปภาพคุณภาพสูงและไอเดียใหม่ๆ ได้ฟรีจากคลังภาพระดับโลก พร้อมข้อกำหนดการใช้งานที่ชัดเจน">
     <link rel="stylesheet" href="style.css">
     <link rel="icon" type="image/png" href="favicon.png">
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -20,9 +20,15 @@
             <div class="logo-container">
                 <span class="logo-icon">⚡</span>
             </div>
-            <h1>Pika<span style="-webkit-text-fill-color: white;">Walls</span></h1>
-            <p class="subtitle">คอลเลกชันวอลเปเปอร์พิคาชูที่คัดสรรมาเพื่อคุณโดยเฉพาะ</p>
+            <h1>Pika<span style="-webkit-text-fill-color: white;">Search</span></h1>
+            <p class="subtitle">ระบบค้นหารูปภาพและไอเดียคุณภาพสูงเพื่อคุณ</p>
         </header>
+
+        <!-- Remark Section -->
+        <div class="remark-box" style="background: rgba(251, 209, 6, 0.05); border: 1px solid rgba(251, 209, 6, 0.2); padding: 1rem; border-radius: 12px; margin-bottom: 2rem; font-size: 0.85rem; color: rgba(255,255,255,0.7);">
+            <strong>⚠️ หมายเหตุ:</strong> รูปภาพที่ปรากฏเป็นการดึงข้อมูลผ่าน API เพื่อใช้สำหรับการค้นหาและอ้างอิงส่วนตัวเท่านั้น โปรดตรวจสอบสิทธิ์การใช้งานของแต่ละรูปภาพก่อนนำไปใช้ในเชิงพาณิชย์
+        </div>
+
 
         <!-- Top Ad Unit -->
         <div style="text-align:center; margin: 2rem 0; min-height: 90px; background: rgba(255,255,255,0.02); border-radius: 12px; display: flex; align-items: center; justify-content: center; border: 1px dashed rgba(255,255,255,0.1);">
@@ -66,9 +72,32 @@
         </main>
         
         <footer style="margin-top: 5rem; text-align: center; color: rgba(255,255,255,0.4); padding-bottom: 2rem;">
-            <p>&copy; 2026 PikaWalls - Made with ⚡ for Pokemon Fans</p>
+            <p>&copy; 2026 PikaSearch - Smart Image Discovery Hub</p>
+            <div style="margin-top: 1rem; font-size: 0.8rem;">
+                <a href="#" id="license-link" style="color: var(--pika-yellow); text-decoration: none; opacity: 0.7;">License & Terms</a>
+            </div>
         </footer>
     </div>
+
+    <!-- License Modal -->
+    <div class="modal" id="license-modal">
+        <span class="close-license" style="position: absolute; top: 20px; right: 30px; font-size: 2rem; cursor: pointer; color: white;">&times;</span>
+        <div class="modal-inner" style="max-width: 600px; background: #111; padding: 2.5rem; border-radius: 24px; border: 1px solid rgba(255,255,255,0.1); line-height: 1.6; margin: 10% auto;">
+            <h2 style="color: var(--pika-yellow); margin-bottom: 1.5rem;">📜 License & Terms</h2>
+            <div style="color: rgba(255,255,255,0.8); font-size: 0.95rem;">
+                <p style="margin-bottom: 1rem;">รูปภาพทั้งหมดบน PikaWalls ดึงข้อมูลผ่าน Pexels API และปฏิบัติตามข้อกำหนดดังนี้:</p>
+                <ul style="list-style: none; padding: 0;">
+                    <li style="margin-bottom: 0.8rem;">✅ ใช้งานได้ฟรีเพื่อวัตถุประสงค์ส่วนตัว</li>
+                    <li style="margin-bottom: 0.8rem;">✅ ไม่จำเป็นต้องระบุแหล่งที่มา (แต่เราให้เครดิตช่างภาพเสมอ)</li>
+                    <li style="margin-bottom: 0.8rem;">❌ ห้ามนำรูปภาพไปขายต่อโดยไม่มีการดัดแปลง</li>
+                    <li style="margin-bottom: 0.8rem;">❌ ห้ามใช้รูปภาพในทางที่ทำให้บุคคลหรือแบรนด์เสียหาย</li>
+                    <li style="margin-bottom: 0.8rem;">❌ ห้ามนำไปจดเครื่องหมายการค้า</li>
+                </ul>
+                <p style="margin-top: 1.5rem; font-size: 0.8rem; color: rgba(255,255,255,0.4);">*PikaWalls เป็นเพียงแพลตฟอร์มในการรวบรวมและแสดงผลภาพเพื่อความสวยงามเท่านั้น</p>
+            </div>
+        </div>
+    </div>
+
 
     <!-- Modal for full size view -->
     <div class="modal" id="image-modal">

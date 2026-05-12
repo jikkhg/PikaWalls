@@ -224,6 +224,22 @@ window.onclick = (event) => {
     }
 };
 
+// License Modal Logic
+const licenseLink = document.getElementById('license-link');
+const licenseModal = document.getElementById('license-modal');
+const closeLicense = document.querySelector('.close-license');
+
+licenseLink.addEventListener('click', (e) => {
+    e.preventDefault();
+    licenseModal.style.display = 'block';
+    document.body.style.overflow = 'hidden';
+});
+
+closeLicense.addEventListener('click', () => {
+    licenseModal.style.display = 'none';
+    document.body.style.overflow = 'auto';
+});
+
 // Lightning Effect
 setInterval(() => {
     if (Math.random() > 0.85) {
