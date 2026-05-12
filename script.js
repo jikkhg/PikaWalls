@@ -127,6 +127,15 @@ async function fetchWallpapers(query, isNewSearch = false) {
                 title: photo.alt || `${query} Wallpaper`,
                 source: 'Pexels'
             }));
+        } else if (query === 'Favorites') {
+            results = favorites;
+            loadingSkeletons.forEach(s => s.remove());
+            renderWallpapers(results);
+            if (results.length === 0) {
+                grid.innerHTML = '<div style="grid-column: 1/-1; text-align:center; padding: 4rem; color:rgba(255,255,255,0.3);">ยังไม่มีรายการโปรด... กด ❤️ เพื่อเก็บรูปที่คุณชอบ!</div>';
+            }
+            isLoading = false;
+            return;
         } else {
             // FALLBACK: Use robust random source if no API key
             // This ensures the site still works out of the box
@@ -163,6 +172,7 @@ function getFallbackId(query, index) {
 
 function renderWallpapers(walls) {
     walls.forEach((wall, index) => {
+        const isFav = favorites.some(f => f.id === wall.id);
         const card = document.createElement('div');
         card.className = 'wall-card';
         card.style.animationDelay = `${index * 0.05}s`;
@@ -170,24 +180,61 @@ function renderWallpapers(walls) {
         card.innerHTML = `
             <img src="${wall.url}" alt="${wall.title}" loading="lazy">
             <a href="${wall.sourceUrl}" target="_blank" class="source-tag" onclick="event.stopPropagation();">by ${wall.source}</a>
+            <button class="fav-btn ${isFav ? 'active' : ''}" onclick="event.stopPropagation(); toggleFavorite(event, '${wall.id}')">
+                ${isFav ? '❤️' : '🤍'}
+            </button>
             <div class="wall-info">
                 <span style="font-weight:700; color:white; text-shadow: 0 2px 4px rgba(0,0,0,0.5); font-size:0.8rem;">${wall.title}</span>
                 <div style="display:flex; gap:0.5rem;">
-                    <button class="download-btn" onclick="event.stopPropagation(); downloadImage('${wall.url}', '${wall.title}')">DOWN</button>
+                    <button class="download-btn" onclick="event.stopPropagation(); downloadImage(this, '${wall.url}', '${wall.title}')">DOWN</button>
                     <button class="download-btn" style="background:rgba(255,255,255,0.2)">VIEW</button>
                 </div>
             </div>
         `;
         
+        card.dataset.wallData = JSON.stringify(wall);
         card.addEventListener('click', () => openModal(wall.url));
         grid.appendChild(card);
     });
 }
 
-async function downloadImage(url, filename) {
+function toggleFavorite(event, wallId) {
+    const btn = event.currentTarget;
+    const card = btn.closest('.wall-card');
+    const wallData = JSON.parse(card.dataset.wallData);
+    
+    const index = favorites.findIndex(f => f.id === wallId);
+    if (index === -1) {
+        favorites.push(wallData);
+        btn.innerHTML = '❤️';
+        btn.classList.add('active');
+    } else {
+        favorites.splice(index, 1);
+        btn.innerHTML = '🤍';
+        btn.classList.remove('active');
+        
+        if (currentQuery === 'Favorites') {
+            card.style.opacity = '0';
+            setTimeout(() => card.remove(), 400);
+        }
+    }
+    
+    localStorage.setItem('pika-favs', JSON.stringify(favorites));
+}
+
+
+async function downloadImage(btn, url, filename) {
+    const originalText = btn.innerHTML;
     try {
+        btn.innerHTML = '...';
+        btn.disabled = true;
+
         const response = await fetch(url);
+        if (!response.ok) throw new Error('Network response was not ok');
+        
         const blob = await response.blob();
+        if (blob.size < 1000) throw new Error('Image too small or protected');
+
         const blobUrl = window.URL.createObjectURL(blob);
         const a = document.createElement('a');
         a.style.display = 'none';
@@ -197,12 +244,31 @@ async function downloadImage(url, filename) {
         a.click();
         window.URL.revokeObjectURL(blobUrl);
         document.body.removeChild(a);
+        
+        btn.innerHTML = 'DONE';
+        setTimeout(() => {
+            btn.innerHTML = originalText;
+            btn.disabled = false;
+        }, 2000);
+
     } catch (error) {
         console.error('Download failed:', error);
-        // Fallback to opening in new tab if blob fails (CORS)
-        window.open(url, '_blank');
+        btn.innerHTML = 'PRO/🔒';
+        btn.style.background = 'rgba(255,0,0,0.2)';
+        btn.title = 'รูปภาพนี้อาจมีการป้องกันลิขสิทธิ์ หรือไม่รองรับการดาวน์โหลดโดยตรง';
+        
+        // Fallback: Try opening in a new tab if it's just a CORS issue
+        setTimeout(() => {
+            if(confirm('ไม่สามารถดาวน์โหลดโดยตรงได้ (อาจเป็นรูปภาพ Pro) ต้องการเปิดในหน้าต่างใหม่แทนไหม?')) {
+                window.open(url, '_blank');
+            }
+            btn.innerHTML = originalText;
+            btn.style.background = '';
+            btn.disabled = false;
+        }, 1000);
     }
 }
+
 
 
 function openModal(url) {

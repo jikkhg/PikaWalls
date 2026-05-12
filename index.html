@@ -56,10 +56,15 @@
         <nav class="categories">
             <div class="cat-chip active" data-query="Pikachu">Pikachu</div>
             <div class="cat-chip" data-query="Wallpaper">All Wallpapers</div>
-            <div class="cat-chip" data-query="Nature">Nature</div>
-            <div class="cat-chip" data-query="Cyberpunk">Cyberpunk</div>
-            <div class="cat-chip" data-query="Anime">Anime</div>
+            <div class="cat-chip" data-query="Favorites" id="fav-chip">❤️ My Favorites</div>
         </nav>
+
+        <div class="filter-bar" style="display: flex; justify-content: center; gap: 1rem; margin-bottom: 2rem;">
+            <button class="filter-btn active" data-orientation="all">All Sizes</button>
+            <button class="filter-btn" data-orientation="portrait">Mobile (HD)</button>
+            <button class="filter-btn" data-orientation="landscape">Desktop (4K)</button>
+        </div>
+
 
         <main class="wallpaper-grid" id="wallpaper-grid">
             <!-- Wallpapers will be injected here -->
