@@ -10,7 +10,7 @@ const modalDownload = document.getElementById('modal-download-link');
 
 // PEXELS API CONFIG
 // Note: Get your free key at https://www.pexels.com/api/
-const PEXELS_API_KEY = 'YOUR_API_KEY_HERE'; 
+const PEXELS_API_KEY = 'IFSBAPA3642m8t9hPEZnIfp6t82veqSDpFX4EJ27HkGPKPrG89UcTdZe'; 
 
 let currentQuery = 'Pikachu';
 let isLoading = false;
@@ -85,8 +85,18 @@ async function fetchWallpapers(query, isNewSearch = false) {
         let results = [];
 
         // If user has provided a Pexels API Key, use real API
-        if (PEXELS_API_KEY !== 'YOUR_API_KEY_HERE') {
-            const response = await fetch(`https://api.pexels.com/v1/search?query=${encodeURIComponent(query)}&per_page=15&page=${page}`, {
+        if (PEXELS_API_KEY !== 'YOUR_API_KEY_HERE' && PEXELS_API_KEY !== '') {
+            // Variety Fix: For Pikachu, mix in Pokemon and Anime results to increase pool
+            let searchQuery = query;
+            if (query.toLowerCase() === 'pikachu') {
+                const alternatives = ['pikachu', 'pokemon', 'anime pokemon', 'detective pikachu'];
+                searchQuery = alternatives[Math.floor(Math.random() * alternatives.length)];
+            }
+
+            // Variety Fix: Use a random starting page to avoid seeing the same images first
+            const randomPage = isNewSearch ? Math.floor(Math.random() * 20) + 1 : page;
+
+            const response = await fetch(`https://api.pexels.com/v1/search?query=${encodeURIComponent(searchQuery)}&per_page=15&page=${randomPage}`, {
                 headers: {
                     Authorization: PEXELS_API_KEY
                 }
