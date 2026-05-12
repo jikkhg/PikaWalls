@@ -96,9 +96,9 @@ async function fetchWallpapers(query, isNewSearch = false) {
             results = data.photos.map(photo => ({
                 id: photo.id,
                 url: photo.src.large2x || photo.src.large,
-                sourceUrl: photo.url,
+                sourceUrl: 'https://www.pexels.com', 
                 title: photo.alt || `${query} Wallpaper`,
-                source: photo.photographer
+                source: 'Pexels'
             }));
         } else {
             // FALLBACK: Use robust random source if no API key
@@ -109,12 +109,13 @@ async function fetchWallpapers(query, isNewSearch = false) {
                 results.push({
                     id: `fallback-${randomSeed}`,
                     url: imgUrl,
-                    sourceUrl: `https://wallpapers.com/search/${encodeURIComponent(query)}`,
+                    sourceUrl: 'https://www.pexels.com',
                     title: `${query} HD Wallpaper`,
-                    source: 'Magnific'
+                    source: 'Pexels'
                 });
             }
         }
+
 
         loadingSkeletons.forEach(s => s.remove());
         renderWallpapers(results);
