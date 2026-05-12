@@ -144,7 +144,10 @@ function renderWallpapers(walls) {
             <a href="${wall.sourceUrl}" target="_blank" class="source-tag" onclick="event.stopPropagation();">by ${wall.source}</a>
             <div class="wall-info">
                 <span style="font-weight:700; color:white; text-shadow: 0 2px 4px rgba(0,0,0,0.5); font-size:0.8rem;">${wall.title}</span>
-                <button class="download-btn">VIEW HD</button>
+                <div style="display:flex; gap:0.5rem;">
+                    <button class="download-btn" onclick="event.stopPropagation(); downloadImage('${wall.url}', '${wall.title}')">DOWN</button>
+                    <button class="download-btn" style="background:rgba(255,255,255,0.2)">VIEW</button>
+                </div>
             </div>
         `;
         
@@ -152,6 +155,27 @@ function renderWallpapers(walls) {
         grid.appendChild(card);
     });
 }
+
+async function downloadImage(url, filename) {
+    try {
+        const response = await fetch(url);
+        const blob = await response.blob();
+        const blobUrl = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.style.display = 'none';
+        a.href = blobUrl;
+        a.download = filename + '.jpg';
+        document.body.appendChild(a);
+        a.click();
+        window.URL.revokeObjectURL(blobUrl);
+        document.body.removeChild(a);
+    } catch (error) {
+        console.error('Download failed:', error);
+        // Fallback to opening in new tab if blob fails (CORS)
+        window.open(url, '_blank');
+    }
+}
+
 
 function openModal(url) {
     modalImg.src = url;
