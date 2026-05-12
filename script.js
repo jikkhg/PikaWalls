@@ -7,12 +7,13 @@ const modal = document.getElementById('image-modal');
 const modalImg = document.getElementById('modal-img');
 const closeModal = document.querySelector('.close-modal');
 const modalDownload = document.getElementById('modal-download-link');
+const modalFrame = document.getElementById('modal-frame');
 
 // PEXELS API CONFIG
 // Note: Get your free key at https://www.pexels.com/api/
 const PEXELS_API_KEY = 'IFSBAPA3642m8t9hPEZnIfp6t82veqSDpFX4EJ27HkGPKPrG89UcTdZe'; 
 
-let currentQuery = 'Pikachu';
+let currentQuery = 'Nature';
 let currentOrientation = 'all'; // all, portrait, landscape
 let isLoading = false;
 let page = 1;
@@ -22,6 +23,8 @@ let favorites = JSON.parse(localStorage.getItem('pika-favs')) || [];
 document.addEventListener('DOMContentLoaded', () => {
     fetchWallpapers(currentQuery, true);
     setupFilters();
+    setupCookieBanner();
+    setupBackToTop();
 });
 
 function setupFilters() {
@@ -72,13 +75,9 @@ chips.forEach(chip => {
     });
 });
 
-// Infinite Scroll
-window.addEventListener('scroll', () => {
-    if (window.innerHeight + window.scrollY >= document.body.offsetHeight - 1000 && !isLoading) {
-        page++;
-        fetchWallpapers(currentQuery, false);
-    }
-});
+// Pagination Element
+const paginationContainer = document.getElementById('pagination');
+const MAX_PAGES = 40;
 
 async function fetchWallpapers(query, isNewSearch = false) {
     if (isLoading) return;
@@ -101,19 +100,24 @@ async function fetchWallpapers(query, isNewSearch = false) {
     try {
         let results = [];
 
-        // If user has provided a Pexels API Key, use real API
-        if (PEXELS_API_KEY !== 'YOUR_API_KEY_HERE' && PEXELS_API_KEY !== '') {
-            // Variety Fix: For Pikachu, mix in Pokemon and Anime results to increase pool
-            let searchQuery = query;
-            if (query.toLowerCase() === 'pikachu') {
-                const alternatives = ['pikachu', 'pokemon', 'anime pokemon', 'detective pikachu'];
-                searchQuery = alternatives[Math.floor(Math.random() * alternatives.length)];
+        // 1. Check for Favorites FIRST
+        if (query === 'Favorites') {
+            results = favorites;
+            loadingSkeletons.forEach(s => s.remove());
+            renderWallpapers(results);
+            renderPagination();
+            if (results.length === 0) {
+                grid.innerHTML = '<div style="grid-column: 1/-1; text-align:center; padding: 4rem; color:rgba(255,255,255,0.3); font-size: 0.9rem; letter-spacing: 0.1em; text-transform: uppercase;">no items saved yet</div>';
             }
+            isLoading = false;
+            return;
+        }
 
-            // Variety Fix: Use a random starting page to avoid seeing the same images first
-            const randomPage = isNewSearch ? Math.floor(Math.random() * 20) + 1 : page;
+        // 2. If user has provided a Pexels API Key, use real API
+        if (PEXELS_API_KEY !== 'YOUR_API_KEY_HERE' && PEXELS_API_KEY !== '') {
+            let searchQuery = query;
 
-            const response = await fetch(`https://api.pexels.com/v1/search?query=${encodeURIComponent(searchQuery)}&per_page=15&page=${randomPage}&orientation=${currentOrientation}`, {
+            const response = await fetch(`https://api.pexels.com/v1/search?query=${encodeURIComponent(searchQuery)}&per_page=70&page=${page}&orientation=${currentOrientation}`, {
                 headers: {
                     Authorization: PEXELS_API_KEY
                 }
@@ -123,19 +127,10 @@ async function fetchWallpapers(query, isNewSearch = false) {
             results = data.photos.map(photo => ({
                 id: photo.id,
                 url: photo.src.large2x || photo.src.large,
-                sourceUrl: 'https://www.pexels.com', 
+                sourceUrl: photo.url, 
                 title: photo.alt || `${query} Wallpaper`,
-                source: 'Pexels'
+                source: photo.photographer || 'Pexels'
             }));
-        } else if (query === 'Favorites') {
-            results = favorites;
-            loadingSkeletons.forEach(s => s.remove());
-            renderWallpapers(results);
-            if (results.length === 0) {
-                grid.innerHTML = '<div style="grid-column: 1/-1; text-align:center; padding: 4rem; color:rgba(255,255,255,0.3);">ยังไม่มีรายการโปรด... กด ❤️ เพื่อเก็บรูปที่คุณชอบ!</div>';
-            }
-            isLoading = false;
-            return;
         } else {
             // FALLBACK: Use robust random source if no API key
             // This ensures the site still works out of the box
@@ -155,6 +150,7 @@ async function fetchWallpapers(query, isNewSearch = false) {
 
         loadingSkeletons.forEach(s => s.remove());
         renderWallpapers(results);
+        renderPagination();
         isLoading = false;
     } catch (error) {
         console.error("Error fetching wallpapers:", error);
@@ -163,10 +159,82 @@ async function fetchWallpapers(query, isNewSearch = false) {
     }
 }
 
+function renderPagination() {
+    if (currentQuery === 'Favorites') {
+        paginationContainer.innerHTML = '';
+        return;
+    }
+
+    paginationContainer.innerHTML = '';
+    
+    const wrapper = document.createElement('div');
+    wrapper.style.cssText = 'background: rgba(255,255,255,0.02); padding: 0.5rem; border-radius: 20px; border: 1px solid rgba(255,255,255,0.05); display: flex; align-items: center; gap: 0.3rem; backdrop-filter: blur(20px);';
+
+    // Previous Button
+    const prevBtn = document.createElement('button');
+    prevBtn.className = `page-btn ${page === 1 ? 'disabled' : ''}`;
+    prevBtn.innerHTML = '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"></polyline></svg>';
+    prevBtn.onclick = () => changePage(page - 1);
+    wrapper.appendChild(prevBtn);
+
+    // Dynamic Range logic
+    let startPage = Math.max(1, page - 2);
+    let endPage = Math.min(MAX_PAGES, startPage + 4);
+    if (endPage - startPage < 4) startPage = Math.max(1, endPage - 4);
+
+    if (startPage > 1) {
+        wrapper.appendChild(createPageBtn(1));
+        if (startPage > 2) {
+            const dot = document.createElement('span');
+            dot.innerText = '...';
+            dot.style.cssText = 'color:rgba(255,255,255,0.2); padding: 0 5px;';
+            wrapper.appendChild(dot);
+        }
+    }
+
+    for (let i = startPage; i <= endPage; i++) {
+        wrapper.appendChild(createPageBtn(i));
+    }
+
+    if (endPage < MAX_PAGES) {
+        if (endPage < MAX_PAGES - 1) {
+            const dot = document.createElement('span');
+            dot.innerText = '...';
+            dot.style.cssText = 'color:rgba(255,255,255,0.2); padding: 0 5px;';
+            wrapper.appendChild(dot);
+        }
+        wrapper.appendChild(createPageBtn(MAX_PAGES));
+    }
+
+    // Next Button
+    const nextBtn = document.createElement('button');
+    nextBtn.className = `page-btn ${page === MAX_PAGES ? 'disabled' : ''}`;
+    nextBtn.innerHTML = '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg>';
+    nextBtn.onclick = () => changePage(page + 1);
+    wrapper.appendChild(nextBtn);
+
+    paginationContainer.appendChild(wrapper);
+}
+
+function createPageBtn(i) {
+    const btn = document.createElement('button');
+    btn.className = `page-btn ${i === page ? 'active' : ''}`;
+    btn.innerText = i;
+    btn.onclick = () => changePage(i);
+    return btn;
+}
+
+function changePage(newPage) {
+    if (newPage >= 1 && newPage <= MAX_PAGES && newPage !== page) {
+        page = newPage;
+        fetchWallpapers(currentQuery, true);
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+}
+
 function getFallbackId(query, index) {
-    const pikaIds = ['1613771404721-1f92d799e49f', '1542751371-adc38448a05e', '1551269901-5c5e14c25df7', '1605333396511-4710ee033d59'];
     const genericIds = ['1470770841072-f978cf4d019e', '1441974231531-c6227db76b6e', '1501785888041-af3ef285b470', '1493246507139-91e8bef99c02'];
-    const pool = query.toLowerCase().includes('pikachu') ? pikaIds : genericIds;
+    const pool = genericIds;
     return pool[index % pool.length];
 }
 
@@ -177,11 +245,15 @@ function renderWallpapers(walls) {
         card.className = 'wall-card';
         card.style.animationDelay = `${index * 0.05}s`;
         
+        const heartIcon = isFav ? 
+            `<svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path></svg>` : 
+            `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path></svg>`;
+
         card.innerHTML = `
             <img src="${wall.url}" alt="${wall.title}" loading="lazy">
             <a href="${wall.sourceUrl}" target="_blank" class="source-tag" onclick="event.stopPropagation();">by ${wall.source}</a>
             <button class="fav-btn ${isFav ? 'active' : ''}" onclick="event.stopPropagation(); toggleFavorite(event, '${wall.id}')">
-                ${isFav ? '❤️' : '🤍'}
+                ${heartIcon}
             </button>
             <div class="wall-info">
                 <span style="font-weight:700; color:white; text-shadow: 0 2px 4px rgba(0,0,0,0.5); font-size:0.8rem;">${wall.title}</span>
@@ -198,24 +270,46 @@ function renderWallpapers(walls) {
     });
 }
 
+function handleTilt(e) {
+    const card = e.currentTarget;
+    const box = card.getBoundingClientRect();
+    const x = e.clientX - box.left;
+    const y = e.clientY - box.top;
+    const centerX = box.width / 2;
+    const centerY = box.height / 2;
+    const rotateX = (y - centerY) / 15;
+    const rotateY = (centerX - x) / 15;
+    
+    card.style.transform = `perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) scale(1.02)`;
+}
+
+function resetTilt(e) {
+    e.currentTarget.style.transform = `perspective(1000px) rotateX(0deg) rotateY(0deg) scale(1)`;
+}
+
 function toggleFavorite(event, wallId) {
     const btn = event.currentTarget;
     const card = btn.closest('.wall-card');
     const wallData = JSON.parse(card.dataset.wallData);
     
-    const index = favorites.findIndex(f => f.id === wallId);
+    const index = favorites.findIndex(f => String(f.id) === String(wallId));
     if (index === -1) {
         favorites.push(wallData);
-        btn.innerHTML = '❤️';
+        btn.innerHTML = `<svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path></svg>`;
         btn.classList.add('active');
     } else {
         favorites.splice(index, 1);
-        btn.innerHTML = '🤍';
+        btn.innerHTML = `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path></svg>`;
         btn.classList.remove('active');
         
         if (currentQuery === 'Favorites') {
             card.style.opacity = '0';
-            setTimeout(() => card.remove(), 400);
+            setTimeout(() => {
+                card.remove();
+                if (favorites.length === 0) {
+                    grid.innerHTML = '<div style="grid-column: 1/-1; text-align:center; padding: 4rem; color:rgba(255,255,255,0.3); font-size: 0.9rem; letter-spacing: 0.1em; text-transform: uppercase;">no items saved yet</div>';
+                }
+            }, 400);
         }
     }
     
@@ -276,6 +370,10 @@ function openModal(url) {
     modalDownload.href = url;
     modal.style.display = 'block';
     document.body.style.overflow = 'hidden';
+    
+    // Add Tilt to Modal Frame
+    modalFrame.addEventListener('mousemove', handleTilt);
+    modalFrame.addEventListener('mouseleave', resetTilt);
 }
 
 closeModal.addEventListener('click', () => {
@@ -315,3 +413,43 @@ setInterval(() => {
         setTimeout(() => flash.remove(), 40);
     }
 }, 4000);
+
+// Cookie Banner Logic
+function setupCookieBanner() {
+    const banner = document.getElementById('cookie-banner');
+    const acceptBtn = document.getElementById('accept-cookies');
+    const declineBtn = document.getElementById('decline-cookies');
+    const cookieConsent = localStorage.getItem('pika-cookie-consent');
+
+    if (!cookieConsent) {
+        setTimeout(() => {
+            banner.classList.add('show');
+        }, 2000);
+    }
+
+    acceptBtn.addEventListener('click', () => {
+        localStorage.setItem('pika-cookie-consent', 'accepted');
+        banner.classList.remove('show');
+    });
+
+    declineBtn.addEventListener('click', () => {
+        localStorage.setItem('pika-cookie-consent', 'declined');
+        banner.classList.remove('show');
+    });
+}
+
+function setupBackToTop() {
+    const btn = document.getElementById('back-to-top');
+    
+    window.addEventListener('scroll', () => {
+        if (window.scrollY > 500) {
+            btn.classList.add('show');
+        } else {
+            btn.classList.remove('show');
+        }
+    });
+
+    btn.addEventListener('click', () => {
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    });
+}

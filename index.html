@@ -18,16 +18,21 @@
     <div class="container">
         <header>
             <div class="logo-container">
-                <span class="logo-icon">⚡</span>
+                <div style="width: 60px; height: 60px; background: var(--pika-blue); border-radius: 18px; display: flex; align-items: center; justify-content: center; transform: rotate(-10deg); box-shadow: 0 10px 30px rgba(0, 132, 255, 0.4); margin: 0 auto 1.5rem;">
+                    <span style="font-size: 2rem; font-weight: 900; color: white;">p.</span>
+                </div>
             </div>
-            <h1>Pika<span style="-webkit-text-fill-color: white;">Search</span></h1>
-            <p class="subtitle">ระบบค้นหารูปภาพและไอเดียคุณภาพสูงเพื่อคุณ</p>
+            <h1>pika<span style="-webkit-text-fill-color: white;">.</span></h1>
+            <p class="subtitle">curated visual discovery hub</p>
         </header>
 
         <!-- Remark Section -->
-        <div class="remark-box" style="background: rgba(251, 209, 6, 0.05); border: 1px solid rgba(251, 209, 6, 0.2); padding: 1rem; border-radius: 12px; margin-bottom: 2rem; font-size: 0.85rem; color: rgba(255,255,255,0.7);">
-            <strong>⚠️ หมายเหตุ:</strong> รูปภาพที่ปรากฏเป็นการดึงข้อมูลผ่าน API เพื่อใช้สำหรับการค้นหาและอ้างอิงส่วนตัวเท่านั้น โปรดตรวจสอบสิทธิ์การใช้งานของแต่ละรูปภาพก่อนนำไปใช้ในเชิงพาณิชย์
-        </div>
+        <a href="terms.html" style="text-decoration: none; display: block; transition: var(--transition-smooth); margin-bottom: 3rem;">
+            <div class="remark-box" style="background: rgba(255, 255, 255, 0.02); border: 1px solid rgba(255, 255, 255, 0.05); padding: 0.8rem 1.5rem; border-radius: 100px; font-size: 0.8rem; color: rgba(255,255,255,0.4); display: flex; justify-content: space-between; align-items: center; backdrop-filter: blur(10px); max-width: fit-content; margin: 0 auto;">
+                <span><span style="color: var(--pika-blue); margin-right: 8px;">●</span> โปรดตรวจสอบสิทธิ์ก่อนใช้งานเชิงพาณิชย์</span>
+                <span style="color: white; font-weight: 600; margin-left: 20px; opacity: 0.8;">legal terms →</span>
+            </div>
+        </a>
 
 
         <!-- Top Ad Unit -->
@@ -46,17 +51,17 @@
         <section class="search-section">
 
             <div class="search-box">
-                <input type="text" id="search-input" placeholder="ค้นหาวอลเปเปอร์ (เช่น Pikachu, Charizard, Cute...)" autocomplete="off">
+                <input type="text" id="search-input" placeholder="find something beautiful..." autocomplete="off">
                 <button class="search-btn" id="search-button">
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
                 </button>
             </div>
         </section>
 
         <nav class="categories">
-            <div class="cat-chip active" data-query="Pikachu">Pikachu</div>
-            <div class="cat-chip" data-query="Wallpaper">All Wallpapers</div>
-            <div class="cat-chip" data-query="Favorites" id="fav-chip">❤️ My Favorites</div>
+            <div class="cat-chip active" data-query="Wallpaper">all collection</div>
+            <div class="cat-chip" data-query="Architecture">Architecture</div>
+            <div class="cat-chip" data-query="Favorites" id="fav-chip">saved items</div>
         </nav>
 
         <div class="filter-bar" style="display: flex; justify-content: center; gap: 1rem; margin-bottom: 2rem;">
@@ -71,15 +76,18 @@
             <div class="wall-card skeleton"></div>
             <div class="wall-card skeleton"></div>
             <div class="wall-card skeleton"></div>
-            <div class="wall-card skeleton"></div>
-            <div class="wall-card skeleton"></div>
-            <div class="wall-card skeleton"></div>
         </main>
         
-        <footer style="margin-top: 5rem; text-align: center; color: rgba(255,255,255,0.4); padding-bottom: 2rem;">
-            <p>&copy; 2026 PikaSearch - Smart Image Discovery Hub</p>
-            <div style="margin-top: 1rem; font-size: 0.8rem;">
-                <a href="#" id="license-link" style="color: var(--pika-yellow); text-decoration: none; opacity: 0.7;">License & Terms</a>
+        <!-- Pagination Section -->
+        <div id="pagination" style="display: flex; justify-content: center; gap: 0.5rem; margin-top: 4rem; flex-wrap: wrap;"></div>
+        
+        <footer style="margin-top: 8rem; text-align: center; padding-bottom: 4rem; opacity: 0.5; border-top: 1px solid rgba(255,255,255,0.03); padding-top: 4rem;">
+            <div style="font-weight: 800; font-size: 1.2rem; margin-bottom: 0.5rem; letter-spacing: -1px; color: white;">pika<span style="color: var(--pika-blue);">.</span></div>
+            <p style="font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.2em; margin-bottom: 2rem;">© 2026 curated by humans</p>
+            <div style="font-size: 0.8rem; display: flex; justify-content: center; gap: 2rem;">
+                <a href="terms.html" style="color: white; text-decoration: none; opacity: 0.5; transition: 0.3s;" onmouseover="this.style.opacity=1" onmouseout="this.style.opacity=0.5">Terms</a>
+                <a href="#" style="color: white; text-decoration: none; opacity: 0.5; transition: 0.3s;" onmouseover="this.style.opacity=1" onmouseout="this.style.opacity=0.5">Privacy</a>
+                <a href="#" style="color: white; text-decoration: none; opacity: 0.5; transition: 0.3s;" onmouseover="this.style.opacity=1" onmouseout="this.style.opacity=0.5">Contact</a>
             </div>
         </footer>
     </div>
@@ -87,18 +95,16 @@
     <!-- License Modal -->
     <div class="modal" id="license-modal">
         <span class="close-license" style="position: absolute; top: 20px; right: 30px; font-size: 2rem; cursor: pointer; color: white;">&times;</span>
-        <div class="modal-inner" style="max-width: 600px; background: #111; padding: 2.5rem; border-radius: 24px; border: 1px solid rgba(255,255,255,0.1); line-height: 1.6; margin: 10% auto;">
-            <h2 style="color: var(--pika-yellow); margin-bottom: 1.5rem;">📜 License & Terms</h2>
-            <div style="color: rgba(255,255,255,0.8); font-size: 0.95rem;">
-                <p style="margin-bottom: 1rem;">รูปภาพทั้งหมดบน PikaWalls ดึงข้อมูลผ่าน Pexels API และปฏิบัติตามข้อกำหนดดังนี้:</p>
+        <div class="modal-inner" style="max-width: 600px; background: #0a0a0a; padding: 3rem; border-radius: 32px; border: 1px solid rgba(255,255,255,0.05); line-height: 1.6; margin: 10% auto; backdrop-filter: blur(20px);">
+            <h2 style="color: var(--pika-blue); margin-bottom: 2rem; font-weight: 800; letter-spacing: -1px; font-size: 2rem;">legal terms<span style="color:white">.</span></h2>
+            <div style="color: rgba(255,255,255,0.5); font-size: 0.9rem;">
+                <p style="margin-bottom: 1.5rem;">รูปภาพทั้งหมดดึงข้อมูลผ่าน Pexels API เพื่อการอ้างอิงและใช้งานส่วนตัว:</p>
                 <ul style="list-style: none; padding: 0;">
-                    <li style="margin-bottom: 0.8rem;">✅ ใช้งานได้ฟรีเพื่อวัตถุประสงค์ส่วนตัว</li>
-                    <li style="margin-bottom: 0.8rem;">✅ ไม่จำเป็นต้องระบุแหล่งที่มา (แต่เราให้เครดิตช่างภาพเสมอ)</li>
-                    <li style="margin-bottom: 0.8rem;">❌ ห้ามนำรูปภาพไปขายต่อโดยไม่มีการดัดแปลง</li>
-                    <li style="margin-bottom: 0.8rem;">❌ ห้ามใช้รูปภาพในทางที่ทำให้บุคคลหรือแบรนด์เสียหาย</li>
-                    <li style="margin-bottom: 0.8rem;">❌ ห้ามนำไปจดเครื่องหมายการค้า</li>
+                    <li style="margin-bottom: 1rem; display: flex; align-items: center; gap: 12px;"><span style="color: var(--pika-blue)">●</span> ใช้งานได้ฟรีเพื่อวัตถุประสงค์ส่วนตัว</li>
+                    <li style="margin-bottom: 1rem; display: flex; align-items: center; gap: 12px;"><span style="color: var(--pika-blue)">●</span> โปรดตรวจสอบสิทธิ์ก่อนนำไปใช้ในเชิงพาณิชย์</li>
+                    <li style="margin-bottom: 1rem; display: flex; align-items: center; gap: 12px;"><span style="color: var(--pika-blue)">●</span> เราให้เครดิตช่างภาพเจ้าของผลงานเสมอ</li>
                 </ul>
-                <p style="margin-top: 1.5rem; font-size: 0.8rem; color: rgba(255,255,255,0.4);">*PikaWalls เป็นเพียงแพลตฟอร์มในการรวบรวมและแสดงผลภาพเพื่อความสวยงามเท่านั้น</p>
+                <p style="margin-top: 2rem; font-size: 0.75rem; opacity: 0.6; padding-top: 1.5rem; border-top: 1px solid rgba(255,255,255,0.05);">*pika. เป็นเพียงแพลตฟอร์มรวบรวมไอเดียเพื่อความสวยงามเท่านั้น</p>
             </div>
         </div>
     </div>
@@ -108,12 +114,34 @@
     <div class="modal" id="image-modal">
         <span class="close-modal">&times;</span>
         <div class="modal-inner">
-            <img src="" alt="Full view" class="modal-content" id="modal-img">
+            <div class="modal-image-frame" id="modal-frame">
+                <img src="" alt="Full view" class="modal-content" id="modal-img">
+            </div>
             <div class="modal-actions-overlay">
-                <a id="modal-download-link" href="#" target="_blank" download class="download-btn-large">DOWNLOAD HD</a>
+                <a id="modal-download-link" href="#" target="_blank" download class="download-btn-large">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
+                    DOWNLOAD ASSETS
+                </a>
             </div>
         </div>
     </div>
+
+    <!-- Cookie Consent Banner -->
+    <div id="cookie-banner" class="cookie-banner">
+        <div class="cookie-content">
+            <span class="cookie-icon">🍪</span>
+            <p>เราใช้คุกกี้เพื่อเพิ่มประสิทธิภาพในการใช้งานและแสดงโฆษณาที่เหมาะสมกับคุณ <a href="terms.html">อ่านนโยบายเพิ่มเติม</a></p>
+            <div class="cookie-actions">
+                <button id="accept-cookies" class="cookie-btn primary">ยอมรับทั้งหมด</button>
+                <button id="decline-cookies" class="cookie-btn secondary">ปฏิเสธ</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Back to Top -->
+    <button id="back-to-top" class="back-to-top">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="18 15 12 9 6 15"></polyline></svg>
+    </button>
 
     <script src="script.js"></script>
     <!-- Vercel Speed Insights -->
