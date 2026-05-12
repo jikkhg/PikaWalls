@@ -13,13 +13,30 @@ const modalDownload = document.getElementById('modal-download-link');
 const PEXELS_API_KEY = 'IFSBAPA3642m8t9hPEZnIfp6t82veqSDpFX4EJ27HkGPKPrG89UcTdZe'; 
 
 let currentQuery = 'Pikachu';
+let currentOrientation = 'all'; // all, portrait, landscape
 let isLoading = false;
 let page = 1;
+let favorites = JSON.parse(localStorage.getItem('pika-favs')) || [];
 
 // Initial setup
 document.addEventListener('DOMContentLoaded', () => {
     fetchWallpapers(currentQuery, true);
+    setupFilters();
 });
+
+function setupFilters() {
+    const filterBtns = document.querySelectorAll('.filter-btn');
+    filterBtns.forEach(btn => {
+        btn.addEventListener('click', () => {
+            filterBtns.forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            currentOrientation = btn.dataset.orientation;
+            page = 1;
+            fetchWallpapers(currentQuery, true);
+        });
+    });
+}
+
 
 // Event Listeners
 searchBtn.addEventListener('click', () => {
@@ -96,7 +113,7 @@ async function fetchWallpapers(query, isNewSearch = false) {
             // Variety Fix: Use a random starting page to avoid seeing the same images first
             const randomPage = isNewSearch ? Math.floor(Math.random() * 20) + 1 : page;
 
-            const response = await fetch(`https://api.pexels.com/v1/search?query=${encodeURIComponent(searchQuery)}&per_page=15&page=${randomPage}`, {
+            const response = await fetch(`https://api.pexels.com/v1/search?query=${encodeURIComponent(searchQuery)}&per_page=15&page=${randomPage}&orientation=${currentOrientation}`, {
                 headers: {
                     Authorization: PEXELS_API_KEY
                 }
