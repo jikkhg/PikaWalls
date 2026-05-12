@@ -145,9 +145,10 @@ function getFallbackId(query, index) {
 }
 
 function renderWallpapers(walls) {
-    walls.forEach(wall => {
+    walls.forEach((wall, index) => {
         const card = document.createElement('div');
         card.className = 'wall-card';
+        card.style.animationDelay = `${index * 0.05}s`;
         
         card.innerHTML = `
             <img src="${wall.url}" alt="${wall.title}" loading="lazy">
