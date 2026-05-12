@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PikaWalls | ฟรีวอลเปเปอร์พิคาชูสุดคูล</title>
+    <meta name="description" content="ดาวน์โหลดวอลเปเปอร์พิคาชูและโปเกมอนความละเอียดสูงฟรี ดีไซน์สวย ทันสมัย สำหรับมือถือและคอมพิวเตอร์">
+    <link rel="stylesheet" href="style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div class="logo-container">
+                <span class="logo-icon">⚡</span>
+            </div>
+            <h1>Pika<span style="-webkit-text-fill-color: white;">Walls</span></h1>
+            <p class="subtitle">คอลเลกชันวอลเปเปอร์พิคาชูที่คัดสรรมาเพื่อคุณโดยเฉพาะ</p>
+        </header>
+
+        <section class="search-section">
+            <div class="search-box">
+                <input type="text" id="search-input" placeholder="ค้นหาวอลเปเปอร์ (เช่น Pikachu, Charizard, Cute...)" autocomplete="off">
+                <button class="search-btn" id="search-button">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+                </button>
+            </div>
+        </section>
+
+        <nav class="categories">
+            <div class="cat-chip active" data-query="Pikachu">Pikachu</div>
+            <div class="cat-chip" data-query="Wallpaper">All Wallpapers</div>
+            <div class="cat-chip" data-query="Nature">Nature</div>
+            <div class="cat-chip" data-query="Cyberpunk">Cyberpunk</div>
+            <div class="cat-chip" data-query="Anime">Anime</div>
+        </nav>
+
+        <main class="wallpaper-grid" id="wallpaper-grid">
+            <!-- Wallpapers will be injected here -->
+            <div class="wall-card skeleton"></div>
+            <div class="wall-card skeleton"></div>
+            <div class="wall-card skeleton"></div>
+            <div class="wall-card skeleton"></div>
+            <div class="wall-card skeleton"></div>
+            <div class="wall-card skeleton"></div>
+        </main>
+        
+        <footer style="margin-top: 5rem; text-align: center; color: rgba(255,255,255,0.4); padding-bottom: 2rem;">
+            <p>&copy; 2026 PikaWalls - Made with ⚡ for Pokemon Fans</p>
+        </footer>
+    </div>
+
+    <!-- Modal for full size view -->
+    <div class="modal" id="image-modal">
+        <span class="close-modal">&times;</span>
+        <div class="modal-inner">
+            <img src="" alt="Full view" class="modal-content" id="modal-img">
+            <div class="modal-actions-overlay">
+                <a id="modal-download-link" href="#" target="_blank" download class="download-btn-large">DOWNLOAD HD</a>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
