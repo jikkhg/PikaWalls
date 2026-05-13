@@ -62,16 +62,24 @@
             </div>
         </section>
 
+        <div class="media-type-toggle" style="display: flex; justify-content: center; gap: 0.5rem; margin-bottom: 2rem; background: rgba(255,255,255,0.02); padding: 0.4rem; border-radius: 100px; border: 1px solid rgba(255,255,255,0.05); width: fit-content; margin: 0 auto 3rem;">
+            <button class="type-btn active" data-type="photos" style="padding: 0.6rem 1.5rem; border-radius: 100px; border: none; background: transparent; color: rgba(255,255,255,0.5); font-weight: 600; cursor: pointer; transition: 0.3s;">PHOTOS</button>
+            <button class="type-btn" data-type="videos" style="padding: 0.6rem 1.5rem; border-radius: 100px; border: none; background: transparent; color: rgba(255,255,255,0.5); font-weight: 600; cursor: pointer; transition: 0.3s;">VIDEOS</button>
+        </div>
+
         <nav class="categories">
-            <div class="cat-chip active" data-query="Wallpaper">all collection</div>
+            <div class="cat-chip active" data-query="Nature">Nature</div>
             <div class="cat-chip" data-query="Architecture">Architecture</div>
+            <div class="cat-chip" data-query="Technology">Technology</div>
+            <div class="cat-chip" data-query="Abstract">Abstract</div>
+            <div class="cat-chip" data-query="Cinematic">Cinematic</div>
             <div class="cat-chip" data-query="Favorites" id="fav-chip">saved items</div>
         </nav>
 
         <div class="filter-bar" style="display: flex; justify-content: center; gap: 1rem; margin-bottom: 2rem;">
             <button class="filter-btn active" data-orientation="all">All Sizes</button>
-            <button class="filter-btn" data-orientation="portrait">Mobile (HD)</button>
-            <button class="filter-btn" data-orientation="landscape">Desktop (4K)</button>
+            <button class="filter-btn" data-orientation="portrait">Portrait</button>
+            <button class="filter-btn" data-orientation="landscape">Landscape</button>
         </div>
 
 

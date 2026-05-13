@@ -15,14 +15,16 @@ const PEXELS_API_KEY = 'IFSBAPA3642m8t9hPEZnIfp6t82veqSDpFX4EJ27HkGPKPrG89UcTdZe
 
 let currentQuery = 'Nature';
 let currentOrientation = 'all'; // all, portrait, landscape
+let currentMediaType = 'photos'; // photos, videos
 let isLoading = false;
 let page = 1;
 let favorites = JSON.parse(localStorage.getItem('pika-favs')) || [];
 
 // Initial setup
 document.addEventListener('DOMContentLoaded', () => {
-    fetchWallpapers(currentQuery, true);
+    fetchMedia(currentQuery, true);
     setupFilters();
+    attachCategoryListeners();
     setupCookieBanner();
     setupBackToTop();
 });
@@ -35,7 +37,58 @@ function setupFilters() {
             btn.classList.add('active');
             currentOrientation = btn.dataset.orientation;
             page = 1;
-            fetchWallpapers(currentQuery, true);
+            fetchMedia(currentQuery, true);
+        });
+    });
+
+    const typeBtns = document.querySelectorAll('.type-btn');
+    typeBtns.forEach(btn => {
+        btn.addEventListener('click', () => {
+            typeBtns.forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            currentMediaType = btn.dataset.type;
+            
+            // Update categories based on type
+            const categoryNav = document.querySelector('.categories');
+            if (currentMediaType === 'videos') {
+                categoryNav.innerHTML = `
+                    <div class="cat-chip active" data-query="Nature">Nature</div>
+                    <div class="cat-chip" data-query="Cinematic">Cinematic</div>
+                    <div class="cat-chip" data-query="Time-lapse">Time-lapse</div>
+                    <div class="cat-chip" data-query="Technology">Technology</div>
+                    <div class="cat-chip" data-query="Aerial">Aerial</div>
+                    <div class="cat-chip" data-query="Favorites" id="fav-chip">saved items</div>
+                `;
+            } else {
+                categoryNav.innerHTML = `
+                    <div class="cat-chip active" data-query="Nature">Nature</div>
+                    <div class="cat-chip" data-query="Architecture">Architecture</div>
+                    <div class="cat-chip" data-query="Technology">Technology</div>
+                    <div class="cat-chip" data-query="Abstract">Abstract</div>
+                    <div class="cat-chip" data-query="Minimal">Minimal</div>
+                    <div class="cat-chip" data-query="Favorites" id="fav-chip">saved items</div>
+                `;
+            }
+            
+            // Re-attach event listeners to new chips
+            attachCategoryListeners();
+            
+            page = 1;
+            fetchMedia(currentQuery, true);
+        });
+    });
+}
+
+function attachCategoryListeners() {
+    const newChips = document.querySelectorAll('.cat-chip');
+    newChips.forEach(chip => {
+        chip.addEventListener('click', () => {
+            newChips.forEach(c => c.classList.remove('active'));
+            chip.classList.add('active');
+            searchInput.value = '';
+            currentQuery = chip.dataset.query;
+            page = 1;
+            fetchMedia(currentQuery, true);
         });
     });
 }
@@ -47,8 +100,8 @@ searchBtn.addEventListener('click', () => {
     if (query) {
         currentQuery = query;
         page = 1;
-        fetchWallpapers(currentQuery, true);
-        chips.forEach(c => c.classList.remove('active'));
+        fetchMedia(currentQuery, true);
+        document.querySelectorAll('.cat-chip').forEach(c => c.classList.remove('active'));
     }
 });
 
@@ -58,28 +111,19 @@ searchInput.addEventListener('keypress', (e) => {
         if (query) {
             currentQuery = query;
             page = 1;
-            fetchWallpapers(currentQuery, true);
-            chips.forEach(c => c.classList.remove('active'));
+            fetchMedia(currentQuery, true);
+            document.querySelectorAll('.cat-chip').forEach(c => c.classList.remove('active'));
         }
     }
 });
 
-chips.forEach(chip => {
-    chip.addEventListener('click', () => {
-        chips.forEach(c => c.classList.remove('active'));
-        chip.classList.add('active');
-        searchInput.value = '';
-        currentQuery = chip.dataset.query;
-        page = 1;
-        fetchWallpapers(currentQuery, true);
-    });
-});
+// Redundant listener removed as it is now handled by attachCategoryListeners()
 
 // Pagination Element
 const paginationContainer = document.getElementById('pagination');
 const MAX_PAGES = 40;
 
-async function fetchWallpapers(query, isNewSearch = false) {
+async function fetchMedia(query, isNewSearch = false) {
     if (isLoading) return;
     isLoading = true;
 
@@ -104,7 +148,7 @@ async function fetchWallpapers(query, isNewSearch = false) {
         if (query === 'Favorites') {
             results = favorites;
             loadingSkeletons.forEach(s => s.remove());
-            renderWallpapers(results);
+            renderMedia(results);
             renderPagination();
             if (results.length === 0) {
                 grid.innerHTML = '<div style="grid-column: 1/-1; text-align:center; padding: 4rem; color:rgba(255,255,255,0.3); font-size: 0.9rem; letter-spacing: 0.1em; text-transform: uppercase;">no items saved yet</div>';
@@ -114,46 +158,57 @@ async function fetchWallpapers(query, isNewSearch = false) {
         }
 
         // 2. If user has provided a Pexels API Key, use real API
-        if (PEXELS_API_KEY !== 'YOUR_API_KEY_HERE' && PEXELS_API_KEY !== '') {
+        if (PEXELS_API_KEY && PEXELS_API_KEY !== 'YOUR_API_KEY_HERE') {
             let searchQuery = query;
+            let url = '';
+            
+            if (currentMediaType === 'photos') {
+                url = `https://api.pexels.com/v1/search?query=${encodeURIComponent(searchQuery)}&per_page=70&page=${page}&orientation=${currentOrientation}`;
+            } else {
+                url = `https://api.pexels.com/videos/search?query=${encodeURIComponent(searchQuery)}&per_page=40&page=${page}&orientation=${currentOrientation}`;
+            }
 
-            const response = await fetch(`https://api.pexels.com/v1/search?query=${encodeURIComponent(searchQuery)}&per_page=70&page=${page}&orientation=${currentOrientation}`, {
+            const response = await fetch(url, {
                 headers: {
                     Authorization: PEXELS_API_KEY
                 }
             });
             const data = await response.json();
             
-            results = data.photos.map(photo => ({
-                id: photo.id,
-                url: photo.src.large2x || photo.src.large,
-                sourceUrl: photo.url, 
-                title: photo.alt || `${query} Wallpaper`,
-                source: photo.photographer || 'Pexels'
-            }));
-        } else {
-            // FALLBACK: Use robust random source if no API key
-            // This ensures the site still works out of the box
-            for (let i = 0; i < 12; i++) {
-                const randomSeed = Math.floor(Math.random() * 1000000) + (page * 12 + i);
-                const imgUrl = `https://images.unsplash.com/photo-${getFallbackId(query, i)}?auto=format&fit=crop&w=800&q=80`;
-                results.push({
-                    id: `fallback-${randomSeed}`,
-                    url: imgUrl,
-                    sourceUrl: 'https://www.pexels.com',
-                    title: `${query} HD Wallpaper`,
-                    source: 'Pexels'
+            if (currentMediaType === 'photos') {
+                results = data.photos.map(photo => ({
+                    id: photo.id,
+                    type: 'photo',
+                    url: photo.src.large2x || photo.src.large,
+                    downloadUrl: photo.src.original,
+                    sourceUrl: photo.url, 
+                    title: photo.alt || `${query} Photo`,
+                    source: photo.photographer || 'Pexels'
+                }));
+            } else {
+                results = data.videos.map(video => {
+                    const bestFile = video.video_files.find(f => f.quality === 'hd') || video.video_files[0];
+                    return {
+                        id: video.id,
+                        type: 'video',
+                        url: video.image, // preview image
+                        videoUrl: bestFile.link,
+                        downloadUrl: bestFile.link,
+                        sourceUrl: video.url,
+                        title: `Video by ${video.user.name}`,
+                        source: video.user.name || 'Pexels',
+                        duration: video.duration
+                    };
                 });
             }
         }
 
-
         loadingSkeletons.forEach(s => s.remove());
-        renderWallpapers(results);
+        renderMedia(results);
         renderPagination();
         isLoading = false;
     } catch (error) {
-        console.error("Error fetching wallpapers:", error);
+        console.error("Error fetching media:", error);
         loadingSkeletons.forEach(s => s.remove());
         isLoading = false;
     }
@@ -227,7 +282,7 @@ function createPageBtn(i) {
 function changePage(newPage) {
     if (newPage >= 1 && newPage <= MAX_PAGES && newPage !== page) {
         page = newPage;
-        fetchWallpapers(currentQuery, true);
+        fetchMedia(currentQuery, true);
         window.scrollTo({ top: 0, behavior: 'smooth' });
     }
 }
@@ -238,9 +293,9 @@ function getFallbackId(query, index) {
     return pool[index % pool.length];
 }
 
-function renderWallpapers(walls) {
-    walls.forEach((wall, index) => {
-        const isFav = favorites.some(f => f.id === wall.id);
+function renderMedia(items) {
+    items.forEach((item, index) => {
+        const isFav = favorites.some(f => String(f.id) === String(item.id));
         const card = document.createElement('div');
         card.className = 'wall-card';
         card.style.animationDelay = `${index * 0.05}s`;
@@ -249,23 +304,45 @@ function renderWallpapers(walls) {
             `<svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path></svg>` : 
             `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path></svg>`;
 
+        let mediaContent = `<img src="${item.url}" alt="${item.title}" loading="lazy">`;
+        let videoIndicator = '';
+        
+        if (item.type === 'video') {
+            videoIndicator = `
+                <div class="video-badge">
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
+                    ${item.duration}s
+                </div>
+                <div class="play-overlay">
+                    <svg width="30" height="30" viewBox="0 0 24 24" fill="white"><path d="M8 5v14l11-7z"/></svg>
+                </div>
+            `;
+        }
+
         card.innerHTML = `
-            <img src="${wall.url}" alt="${wall.title}" loading="lazy">
-            <a href="${wall.sourceUrl}" target="_blank" class="source-tag" onclick="event.stopPropagation();">by ${wall.source}</a>
-            <button class="fav-btn ${isFav ? 'active' : ''}" onclick="event.stopPropagation(); toggleFavorite(event, '${wall.id}')">
+            ${mediaContent}
+            ${videoIndicator}
+            <a href="${item.sourceUrl}" target="_blank" class="source-tag" onclick="event.stopPropagation();">by ${item.source}</a>
+            <button class="fav-btn ${isFav ? 'active' : ''}" onclick="event.stopPropagation(); toggleFavorite(event, '${item.id}')">
                 ${heartIcon}
             </button>
             <div class="wall-info">
-                <span style="font-weight:700; color:white; text-shadow: 0 2px 4px rgba(0,0,0,0.5); font-size:0.8rem;">${wall.title}</span>
+                <span style="font-weight:700; color:white; text-shadow: 0 2px 4px rgba(0,0,0,0.5); font-size:0.8rem;">${item.title}</span>
                 <div style="display:flex; gap:0.5rem;">
-                    <button class="download-btn" onclick="event.stopPropagation(); downloadImage(this, '${wall.url}', '${wall.title}')">DOWN</button>
+                    <button class="download-btn" onclick="event.stopPropagation(); downloadImage(this, '${item.downloadUrl || item.url}', '${item.title}')">${item.type === 'video' ? 'GET' : 'DOWN'}</button>
                     <button class="download-btn" style="background:rgba(255,255,255,0.2)">VIEW</button>
                 </div>
             </div>
         `;
         
-        card.dataset.wallData = JSON.stringify(wall);
-        card.addEventListener('click', () => openModal(wall.url));
+        card.dataset.mediaData = JSON.stringify(item);
+        card.addEventListener('click', () => {
+            if (item.type === 'video') {
+                openVideoModal(item);
+            } else {
+                openModal(item.url, item.downloadUrl);
+            }
+        });
         grid.appendChild(card);
     });
 }
@@ -287,14 +364,14 @@ function resetTilt(e) {
     e.currentTarget.style.transform = `perspective(1000px) rotateX(0deg) rotateY(0deg) scale(1)`;
 }
 
-function toggleFavorite(event, wallId) {
+function toggleFavorite(event, mediaId) {
     const btn = event.currentTarget;
     const card = btn.closest('.wall-card');
-    const wallData = JSON.parse(card.dataset.wallData);
+    const mediaData = JSON.parse(card.dataset.mediaData);
     
-    const index = favorites.findIndex(f => String(f.id) === String(wallId));
+    const index = favorites.findIndex(f => String(f.id) === String(mediaId));
     if (index === -1) {
-        favorites.push(wallData);
+        favorites.push(mediaData);
         btn.innerHTML = `<svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path></svg>`;
         btn.classList.add('active');
     } else {
@@ -365,15 +442,43 @@ async function downloadImage(btn, url, filename) {
 
 
 
-function openModal(url) {
+function openModal(url, downloadUrl) {
     modalImg.src = url;
-    modalDownload.href = url;
+    modalDownload.href = downloadUrl || url;
+    modalImg.style.display = 'block';
+    
+    // Remove video if exists
+    const oldVideo = modalFrame.querySelector('video');
+    if (oldVideo) oldVideo.remove();
+
     modal.style.display = 'block';
     document.body.style.overflow = 'hidden';
     
     // Add Tilt to Modal Frame
     modalFrame.addEventListener('mousemove', handleTilt);
     modalFrame.addEventListener('mouseleave', resetTilt);
+}
+
+function openVideoModal(item) {
+    modalImg.style.display = 'none';
+    modalDownload.href = item.videoUrl;
+    
+    // Remove old video
+    const oldVideo = modalFrame.querySelector('video');
+    if (oldVideo) oldVideo.remove();
+
+    const video = document.createElement('video');
+    video.src = item.videoUrl;
+    video.controls = true;
+    video.autoplay = true;
+    video.loop = true;
+    video.className = 'modal-content';
+    video.style.borderRadius = '18px';
+    video.style.boxShadow = '0 10px 30px rgba(0,0,0,0.3)';
+    modalFrame.appendChild(video);
+
+    modal.style.display = 'block';
+    document.body.style.overflow = 'hidden';
 }
 
 closeModal.addEventListener('click', () => {
